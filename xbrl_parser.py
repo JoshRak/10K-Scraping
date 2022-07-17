@@ -39,6 +39,8 @@ def parse_report(cik, accessionNumber, xbrlDocument):
                 unit = tag.get("unitRef").lower()
                 if "usd" in unit:
                     unit = "usd"
+                if "shares" in unit:
+                    unit = "shares"
                 year = contexts[tag.get("contextRef")][0:4]
                 xbrl_df = xbrl_df.append({"cik": cik,
                                           "tag": tag.name,
