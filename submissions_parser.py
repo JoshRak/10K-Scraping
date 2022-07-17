@@ -20,8 +20,11 @@ def parse_submission(filepath):
     submissions_df["cik"] = filepath.name[3:13]
     submissions_df["filingDate"] = pd.to_datetime(
         submissions_df["filingDate"], format="%Y-%m-%d")
+    submissions_df["reportDate"] = pd.to_datetime(
+        submissions_df["reportDate"], format="%Y-%m-%d")
+
     submissions_df['xbrlDocument'] = submissions_df.apply(
-        lambda x: get_xbrl_location(x['cik'], x['accessionNumber']), axis=1)
+        lambda row: get_xbrl_location(row['cik'], row['accessionNumber']), axis=1)
 
     submissions_df = submissions_df[["cik", "accessionNumber", "filingDate",
                                      "reportDate", "form", "primaryDocument", "isXBRL", "isInlineXBRL", "xbrlDocument"]]
@@ -34,12 +37,12 @@ def get_xbrl_location(cik, accessionNumber):
 
     headers = {
         'User-Agent': 'test',
-        'From': 'youremail@domain.example'  # This is another valid field
+        'From': 'youremail@domain.example'
     }
 
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.content, features="html.parser")
-    # dataTable = soup.find("table", {"summary": "Data Files"})
+
     next = False
     for row in soup.findAll("td"):
         if (next):
@@ -57,7 +60,7 @@ def parse_all(directory, allowedCiks):
                 parse_submission(filepath), ignore_index=True)
     submissions_df.sort_values(
         by=["cik", "filingDate"], inplace=True, ignore_index=True)
-    submissions_df.to_csv("submissions.csv")
+    submissions_df.to_csv("submissions.csv", index=False)
 
 
 def is_main_file(filename: str):
